@@ -1,0 +1,157 @@
+<?php
+// Database connection
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "allstar";
+
+$conn = mysqli_connect($servername, $username, $password, $dbname);
+
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+
+// Sign up form submission
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['signup'])) {
+    $name = $_POST['name'];
+    $mobile = $_POST['mobile'];
+    $email = $_POST['email'];
+
+    $sql = "INSERT INTO customer (C_name, C_mobile, C_email) VALUES ('$name', '$mobile', '$email')";
+
+    if (mysqli_query($conn, $sql)) {
+        // Get the ID of the last inserted row (customer)
+        $C_ID = mysqli_insert_id($conn);
+        
+        // Redirect to homepage.php with C_ID parameter
+        header("Location: homepage.php?C_ID=" . $C_ID);
+        exit;
+    } else {
+        echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+    }
+}
+
+// Login form submission
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
+    $email = $_POST['login_email'];
+
+    $sql = "SELECT * FROM customer WHERE C_email='$email'";
+    $result = mysqli_query($conn, $sql);
+
+    if (mysqli_num_rows($result) > 0) {
+        // Assuming email is unique, get the ID of the found customer
+        $row = mysqli_fetch_assoc($result);
+        $C_ID = $row['C_ID'];
+        
+        // Redirect to homepage.php with C_ID parameter
+        header("Location: ../pages/homepage.php?C_ID=" . $C_ID);
+        exit;
+    } else {
+        $error = "Email not found. Please sign up.";
+    }
+}
+
+mysqli_close($conn);
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - We Are Stars</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f5;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 100px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        .freturorm-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .form-group button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4a90e2;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Login</h2>
+        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+            <div class="form-group">
+                <label for="login_email">Email:</label>
+                <input type="email" id="login_email" name="login_email" required>
+            </div>
+            <br>
+            <div class="form-group">
+                <button type="submit" name="login">Login</button>
+            </div>
+            <?php if (isset($error)) { ?>
+                <div class="error"><?php echo $error; ?></div>
+            <?php } ?>
+        </form>
+        <hr>
+        <h2>Sign Up</h2>
+        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <br>
+            <div class="form-group">
+                <label for="mobile">Mobile Number:</label>
+                <input type="tel" id="mobile" name="mobile" required>
+            </div>
+            <br>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <br>
+            <div class="form-group">
+                <button type="submit" name="signup">Sign Up</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

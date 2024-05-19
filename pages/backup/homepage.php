@@ -1,0 +1,227 @@
+<?php
+// Database connection
+$servername = "localhost";
+$username = "root"; // Replace with your MySQL username
+$password = ""; // Replace with your MySQL password
+$dbname = "allstar";
+
+$conn = mysqli_connect($servername, $username, $password, $dbname);
+
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+
+// Handle form submission
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $C_ID = $_POST['C_ID'];
+    $mem_type = $_POST['mem_type'];
+
+    // Define an array to map plan descriptions to prices
+    $membership_prices = [
+        "Six months - \$550 plus GST" => 550,
+        "One year - \$800 plus GST" => 800,
+        "Lifetime access - \$3500 plus GST" => 3500
+    ];
+
+    // Get the selected membership plan description
+    $selected_plan = $_POST['mem_type'] ?? '';
+
+    // Get the corresponding membership price from the array
+    $membership_price = $membership_prices[$selected_plan] ?? 0;
+
+    $sql = "INSERT INTO membership (C_ID, mem_type, membership_price) VALUES ('$C_ID', '$mem_type', '$membership_price')";
+
+    if (mysqli_query($conn, $sql)) {
+        header("Location: ../pages/payment.php");
+        exit;
+    } else {
+        echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+    }
+}
+
+mysqli_close($conn);
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to We Are Stars</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f0f0f5;
+            color: #333;
+        }
+
+        .top-bar {
+            background-color: #000;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.2em;
+            position: relative;
+        }
+
+        .top-bar .return-button {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            margin-right: 20px;
+            padding: 10px 20px;
+            background-color: #4a90e2;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .top-bar .return-button:hover {
+            background-color: #357ab8;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .container img {
+            width: 100%;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #4a90e2;
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+
+        .service-description {
+            margin: 20px 0;
+            font-size: 1.2em;
+            color: #555;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .form-group button {
+            width: 100%;
+            padding: 15px;
+            background-color: #4a90e2;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .form-group button:hover {
+            background-color: #357ab8;
+            transform: scale(1.05);
+        }
+
+        .features {
+            margin-top: 20px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .feature-icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+
+        .feature-text {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .membership-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .bottom-bar {
+            background-color: #000;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+            font-size: 1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <h2>⭐ WELCOME TO WE ARE STARS ⭐</h2>
+        <a href="index.php" class="return-button">Return</a>
+    </div>
+    <div class="container">
+        <div class="service-description">
+            Join us on our journey to empower talent and celebrate creativity. Together, we can make a difference in the lives of artists and bring captivating performances to audiences worldwide.
+        </div>
+        <img src="../images/image9.jpg" alt="Placeholder Image">
+        <img src="../images/image10.jpg" alt="Placeholder Image">
+    </div>
+    <div class="membership-container">
+        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+            <input type="hidden" name="C_ID" value="<?php echo isset($_GET['C_ID']) ? $_GET['C_ID'] : ''; ?>">
+            <div class="form-group">
+                <label for="mem_type">Select Membership Plan:</label>
+                <select id="mem_type" name="mem_type" required>
+                    <option value="">Select</option>
+                    <option value="Six months - $550 plus GST">Six months - $550 plus GST</option>
+                    <option value="One year - $800 plus GST">One year - $800 plus GST</option>
+                    <option value="Lifetime access - $3500 plus GST">Lifetime access - $3500 plus GST</option>
+                </select>
+            </div>
+            <input type="hidden" name="membership_price" value="<?php echo $membership_price; ?>">
+            <input type="hidden" name="member_ID" value="<?php echo isset($_GET['member_ID']) ? $_GET['member_ID'] : ''; ?>">
+            <div class="form-group">
+                <button type="submit" name="submit">Purchase Membership</button>
+            </div>
+        </form>
+    </div>
+    <div class="bottom-bar">
+        © 2024 We Are Stars. All rights reserved.
+    </div>
+</body>
+</html>
